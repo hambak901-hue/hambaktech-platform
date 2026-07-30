@@ -1,0 +1,541 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum RoleType {
+  SUPER_ADMIN
+  ADMIN
+  STAFF
+  STUDENT
+  CUSTOMER
+}
+
+enum PermissionAction {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+  APPROVE
+  MANAGE
+}
+
+enum ServiceStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+enum WalletTransactionType {
+  CREDIT
+  DEBIT
+}
+
+enum NotificationStatus {
+  UNREAD
+  READ
+}
+
+enum WalletStatus {
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+enum WalletTransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REVERSED
+}
+
+enum PaymentProvider {
+  WALLET
+  PAYSTACK
+  FLUTTERWAVE
+  REMITA
+  BANK_TRANSFER
+  CASH
+}
+
+enum PaymentMethod {
+  WALLET
+  PAYSTACK
+  FLUTTERWAVE
+  REMITA
+  BANK_TRANSFER
+  CASH
+}
+
+enum EnrollmentStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+model CompanySettings {
+  id                 String   @id @default(uuid())
+  companyName        String
+  brandName          String?
+  slogan             String?
+  registrationNumber String?
+
+  email              String?
+  alternateEmail     String?
+
+  phone              String?
+  whatsapp           String?
+  customerService    String?
+
+  website            String?
+
+  address            String?
+  city               String?
+  state              String?
+  country            String?
+
+  logo               String?
+  favicon            String?
+
+  isActive Boolean @default(true)
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model WebsiteSettings {
+  id               String   @id @default(uuid())
+
+  homepageTitle    String?
+  homepageSubtitle String?
+  homepageBanner   String?
+
+  seoTitle         String?
+  seoDescription   String?
+
+  facebookUrl      String?
+  instagramUrl     String?
+  twitterUrl       String?
+  linkedinUrl      String?
+  youtubeUrl       String?
+
+  isMaintenanceMode Boolean @default(false)
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  type        RoleType
+  description String?
+
+  users       User[]
+  permissions RolePermission[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Permission {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  action      PermissionAction
+  description String?
+
+  roles       RolePermission[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model RolePermission {
+  id           String @id @default(uuid())
+
+  roleId       String
+  permissionId String
+
+  role         Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+}
+
+model User {
+  id              String      @id @default(uuid())
+
+  firstName       String
+  lastName        String
+  otherName       String?
+
+  email           String      @unique
+  phone           String?     @unique
+
+  password        String
+
+  gender          Gender?
+
+  profilePhoto    String?
+
+  status          UserStatus  @default(PENDING)
+
+  roleId          String
+  role            Role        @relation(fields: [roleId], references: [id])
+
+  wallet          Wallet?
+
+  student         Student?
+
+  serviceRequests ServiceRequest[]
+
+  orders          Order[]
+  payments        Payment[]
+
+  emailVerified   Boolean     @default(false)
+  phoneVerified   Boolean     @default(false)
+
+  lastLogin       DateTime?
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([email])
+  @@index([phone])
+  @@index([roleId])
+  @@index([status])
+}
+
+  
+model ServiceCategory {
+  id          String    @id @default(uuid())
+
+  name        String    @unique
+  description String?
+
+  services    Service[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Service {
+  id            String          @id @default(uuid())
+
+  categoryId    String
+  category      ServiceCategory @relation(fields: [categoryId], references: [id])
+
+  name          String
+  description   String?
+
+  price         Decimal         @db.Decimal(10,2)
+
+  status        ServiceStatus   @default(ACTIVE)
+
+  isFeatured    Boolean         @default(false)
+
+  requests      ServiceRequest[]
+  orderItems    OrderItem[]
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model ServiceRequest {
+  id         String      @id @default(uuid())
+
+  userId     String
+  serviceId  String
+  orderId    String?
+
+  user        User      @relation(fields: [userId], references: [id])
+  service     Service   @relation(fields: [serviceId], references: [id])
+  order       Order?    @relation(fields: [orderId], references: [id])
+
+  status      OrderStatus @default(PENDING)
+
+  notes       String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([serviceId])
+  @@index([orderId])
+  @@index([status])
+}
+
+model Wallet {
+  id           String       @id @default(uuid())
+
+  userId       String       @unique
+
+  balance      Decimal      @default(0) @db.Decimal(18,2)
+
+  currency     String       @default("NGN")
+
+  status       WalletStatus @default(ACTIVE)
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  transactions WalletTransaction[]
+
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model WalletTransaction {
+  id                String                    @id @default(uuid())
+
+  walletId          String
+
+  reference         String                    @unique
+
+  gatewayReference  String?
+
+  amount            Decimal                   @db.Decimal(18,2)
+
+  type              WalletTransactionType
+
+  status            WalletTransactionStatus   @default(PENDING)
+
+  provider          PaymentProvider           @default(WALLET)
+
+  description       String?
+
+  metadata          Json?
+
+  processedAt       DateTime?
+
+  wallet            Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  payment Payment?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([walletId])
+  @@index([reference])
+  @@index([status])
+  @@index([provider])
+}
+
+model Order {
+  id                 String           @id @default(uuid())
+
+  userId             String
+
+  reference          String           @unique
+
+  totalAmount        Decimal          @db.Decimal(18,2)
+
+  status             OrderStatus      @default(PENDING)
+
+  notes              String?
+
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  serviceRequests     ServiceRequest[]
+
+  items              OrderItem[]
+
+  payments           Payment[]
+
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  @@index([userId])
+  @@index([reference])
+  @@index([status])
+}
+
+model OrderItem {
+  id              String      @id @default(uuid())
+
+  orderId         String
+
+  serviceId       String
+
+  quantity        Int         @default(1)
+
+  unitPrice       Decimal     @db.Decimal(18,2)
+
+  totalPrice      Decimal     @db.Decimal(18,2)
+
+  description     String?
+
+  order           Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  service         Service     @relation(fields: [serviceId], references: [id])
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([orderId])
+  @@index([serviceId])
+}
+
+model Payment {
+  id                 String           @id @default(uuid())
+
+  userId             String
+
+  orderId            String?
+
+  walletTransactionId String? @unique
+
+  walletTransaction WalletTransaction? @relation(fields: [walletTransactionId], references: [id])
+
+  reference          String           @unique
+
+  gatewayReference   String?
+
+  amount             Decimal          @db.Decimal(18,2)
+
+  method             PaymentMethod
+
+  provider           PaymentProvider
+
+  status             PaymentStatus    @default(PENDING)
+
+  metadata           Json?
+
+  paidAt             DateTime?
+
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  order              Order?           @relation(fields: [orderId], references: [id])
+
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  @@index([userId])
+  @@index([orderId])
+  @@index([reference])
+  @@index([status])
+}
+
+model Course {
+  id              String      @id @default(uuid())
+
+  title           String
+  slug            String      @unique
+
+  description     String?
+
+  duration        String?
+
+  price           Decimal     @db.Decimal(10,2)
+
+  isActive        Boolean     @default(true)
+
+  enrollments     Enrollment[]
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([slug])
+}
+
+model Student {
+  id                String       @id @default(uuid())
+
+  userId            String       @unique
+
+  studentNumber     String       @unique
+
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  enrollments       Enrollment[]
+
+  certificates      Certificate[]
+
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([studentNumber])
+}
+
+model Enrollment {
+  id               String              @id @default(uuid())
+
+  studentId        String
+
+  courseId         String
+
+  status           EnrollmentStatus    @default(PENDING)
+
+  enrolledAt       DateTime            @default(now())
+
+  completedAt      DateTime?
+
+  student          Student             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  course           Course              @relation(fields: [courseId], references: [id])
+
+  certificate      Certificate?
+
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  @@unique([studentId, courseId])
+  @@index([studentId])
+  @@index([courseId])
+}
+
+model Certificate {
+  id                String        @id @default(uuid())
+
+  studentId         String
+
+  enrollmentId      String        @unique
+
+  certificateNo     String        @unique
+
+  issuedAt          DateTime      @default(now())
+
+  verificationCode  String        @unique
+
+  student           Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  enrollment        Enrollment    @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([certificateNo])
+  @@index([verificationCode])
+}
