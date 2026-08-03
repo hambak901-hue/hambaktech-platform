@@ -1,9 +1,22 @@
 "use client";
 
-export default function UserForm() {
-  return (
-    <form className="space-y-6 rounded-lg border bg-white p-6 shadow">
+import { createUser } from "@/actions/users/create-user";
 
+interface Role {
+  id: number;
+  name: string;
+}
+
+interface UserFormProps {
+  roles: Role[];
+}
+
+export default function UserForm({ roles }: UserFormProps) {
+  return (
+    <form
+      action={createUser}
+      className="space-y-6 rounded-lg border bg-white p-6 shadow"
+    >
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 
         <div>
@@ -12,6 +25,8 @@ export default function UserForm() {
           </label>
 
           <input
+            name="firstName"
+            required
             className="w-full rounded border p-3"
             placeholder="John"
           />
@@ -23,6 +38,8 @@ export default function UserForm() {
           </label>
 
           <input
+            name="lastName"
+            required
             className="w-full rounded border p-3"
             placeholder="Doe"
           />
@@ -34,6 +51,7 @@ export default function UserForm() {
           </label>
 
           <input
+            name="otherName"
             className="w-full rounded border p-3"
           />
         </div>
@@ -44,7 +62,9 @@ export default function UserForm() {
           </label>
 
           <input
+            name="email"
             type="email"
+            required
             className="w-full rounded border p-3"
           />
         </div>
@@ -55,8 +75,31 @@ export default function UserForm() {
           </label>
 
           <input
+            name="phone"
+            required
             className="w-full rounded border p-3"
           />
+        </div>
+
+        <div>
+          <label className="mb-2 block font-medium">
+            Role
+          </label>
+
+          <select
+            name="roleId"
+            required
+            className="w-full rounded border p-3"
+          >
+            {roles.map((role) => (
+              <option
+                key={role.id}
+                value={role.id}
+              >
+                {role.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
@@ -64,9 +107,12 @@ export default function UserForm() {
             Gender
           </label>
 
-          <select className="w-full rounded border p-3">
-            <option>Male</option>
-            <option>Female</option>
+          <select
+            name="gender"
+            className="w-full rounded border p-3"
+          >
+            <option value="MALE">Male</option>
+            <option value="FEMALE">Female</option>
           </select>
         </div>
 
@@ -76,18 +122,9 @@ export default function UserForm() {
           </label>
 
           <input
+            name="password"
             type="password"
-            className="w-full rounded border p-3"
-          />
-        </div>
-
-        <div>
-          <label className="mb-2 block font-medium">
-            Confirm Password
-          </label>
-
-          <input
-            type="password"
+            required
             className="w-full rounded border p-3"
           />
         </div>
@@ -95,11 +132,11 @@ export default function UserForm() {
       </div>
 
       <button
-        className="rounded bg-blue-600 px-6 py-3 text-white"
+        type="submit"
+        className="rounded bg-blue-600 px-6 py-3 text-white hover:bg-blue-700"
       >
         Create User
       </button>
-
     </form>
   );
 }

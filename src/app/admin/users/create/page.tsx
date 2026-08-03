@@ -1,6 +1,9 @@
 import UserForm from "@/components/users/UserForm";
+import { getRoles } from "@/services/roles.service";
 
-export default function CreateUserPage() {
+export default async function CreateUserPage() {
+  const roles = await getRoles();
+
   return (
     <div className="space-y-8">
       <div>
@@ -13,7 +16,7 @@ export default function CreateUserPage() {
         </p>
       </div>
 
-      <UserForm />
+      <UserForm roles={roles} />
     </div>
   );
 }
