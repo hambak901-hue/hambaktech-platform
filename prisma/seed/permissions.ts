@@ -4,7 +4,9 @@ import {
 } from "@prisma/client";
 
 export async function seedPermissions(prisma: PrismaClient) {
-  const permissions = [
+  const permissions: Array<
+    [string, PermissionAction]
+  > = [
     ["Users", PermissionAction.MANAGE],
     ["Services", PermissionAction.MANAGE],
     ["Orders", PermissionAction.MANAGE],
@@ -21,7 +23,12 @@ export async function seedPermissions(prisma: PrismaClient) {
       where: {
         name,
       },
-      update: {},
+
+      update: {
+        action,
+        description: `${name} Permission`,
+      },
+
       create: {
         name,
         action,
@@ -30,5 +37,5 @@ export async function seedPermissions(prisma: PrismaClient) {
     });
   }
 
-  console.log("✅ Permissions Seeded");
+  console.log("Permissions Seeded");
 }

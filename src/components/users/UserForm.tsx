@@ -3,7 +3,7 @@
 import { createUser } from "@/actions/users/create-user";
 
 interface Role {
-  id: number;
+  id: string;
   name: string;
 }
 
@@ -11,7 +11,9 @@ interface UserFormProps {
   roles: Role[];
 }
 
-export default function UserForm({ roles }: UserFormProps) {
+export default function UserForm({
+  roles,
+}: UserFormProps) {
   return (
     <form
       action={createUser}
@@ -91,6 +93,10 @@ export default function UserForm({ roles }: UserFormProps) {
             required
             className="w-full rounded border p-3"
           >
+            <option value="">
+              Select a role
+            </option>
+
             {roles.map((role) => (
               <option
                 key={role.id}
@@ -111,8 +117,17 @@ export default function UserForm({ roles }: UserFormProps) {
             name="gender"
             className="w-full rounded border p-3"
           >
-            <option value="MALE">Male</option>
-            <option value="FEMALE">Female</option>
+            <option value="">
+              Select gender
+            </option>
+
+            <option value="MALE">
+              Male
+            </option>
+
+            <option value="FEMALE">
+              Female
+            </option>
           </select>
         </div>
 
@@ -125,7 +140,9 @@ export default function UserForm({ roles }: UserFormProps) {
             name="password"
             type="password"
             required
+            minLength={8}
             className="w-full rounded border p-3"
+            placeholder="Minimum 8 characters"
           />
         </div>
 

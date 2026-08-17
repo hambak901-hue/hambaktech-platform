@@ -101,11 +101,33 @@ model User {
   student         Student?
   role            Role             @relation(fields: [roleId], references: [id])
   wallet          Wallet?
+  activityLogs    ActivityLog[]
 
   @@index([email])
   @@index([phone])
   @@index([roleId])
   @@index([status])
+}
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  userId      String?
+  action      String
+  entity      String
+  entityId    String?
+  description String?
+  metadata    Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([action])
+  @@index([entity])
+  @@index([entityId])
+  @@index([createdAt])
 }
 
 model ServiceCategory {
