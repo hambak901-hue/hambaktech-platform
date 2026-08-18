@@ -1,11 +1,13 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { UserStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+
+import { prisma } from "@/lib/prisma";
 
 export async function updateUserStatus(
   userId: string,
-  status: "ACTIVE" | "SUSPENDED"
+  status: UserStatus
 ) {
   await prisma.user.update({
     where: {

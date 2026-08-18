@@ -1,5 +1,7 @@
+import type { UserActivity } from "@/types/user";
+
 interface UserActivityCardProps {
-  user: any;
+  user: UserActivity;
 }
 
 export default function UserActivityCard({
@@ -7,13 +9,11 @@ export default function UserActivityCard({
 }: UserActivityCardProps) {
   return (
     <div className="rounded-xl border bg-white p-6 shadow-sm">
-
       <h2 className="mb-6 text-xl font-bold">
         User Activity
       </h2>
 
       <div className="space-y-4">
-
         <ActivityItem
           title="Orders"
           value={user.orders?.length ?? 0}
@@ -49,9 +49,7 @@ export default function UserActivityCard({
             user.student?.enrollments?.length ?? 0
           }
         />
-
       </div>
-
     </div>
   );
 }
@@ -61,11 +59,10 @@ function ActivityItem({
   value,
 }: {
   title: string;
-  value: any;
+  value: string | number;
 }) {
   return (
     <div className="flex items-center justify-between border-b pb-3">
-
       <span className="text-gray-600">
         {title}
       </span>
@@ -73,7 +70,6 @@ function ActivityItem({
       <span className="font-semibold">
         {value}
       </span>
-
     </div>
   );
 }

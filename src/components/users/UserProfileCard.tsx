@@ -1,7 +1,10 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
+
+import type { UserProfile } from "@/types/user";
 
 interface UserProfileCardProps {
-  user: any;
+  user: UserProfile;
 }
 
 export default function UserProfileCard({
@@ -9,9 +12,7 @@ export default function UserProfileCard({
 }: UserProfileCardProps) {
   return (
     <div className="rounded-xl border bg-white p-6 shadow-sm">
-
       <div className="flex items-center justify-between">
-
         <div>
           <h2 className="text-2xl font-bold">
             {user.firstName} {user.lastName}
@@ -25,13 +26,11 @@ export default function UserProfileCard({
         </div>
 
         <span className="rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700">
-          {user.role?.name}
+          {user.role?.name ?? "-"}
         </span>
-
       </div>
 
       <div className="mt-8 grid gap-4 md:grid-cols-2">
-
         <Info
           title="Email"
           value={user.email}
@@ -73,13 +72,13 @@ export default function UserProfileCard({
 
         <Info
           title="Created"
-          value={new Date(user.createdAt).toLocaleDateString()}
+          value={new Date(
+            user.createdAt
+          ).toLocaleDateString()}
         />
-
       </div>
 
       <div className="mt-8 flex gap-4">
-
         <Link
           href={`/admin/users/${user.id}/edit`}
           className="rounded-lg bg-blue-600 px-5 py-2 text-white"
@@ -93,9 +92,7 @@ export default function UserProfileCard({
         >
           Back
         </Link>
-
       </div>
-
     </div>
   );
 }
@@ -105,7 +102,7 @@ function Info({
   value,
 }: {
   title: string;
-  value: any;
+  value: ReactNode;
 }) {
   return (
     <div className="rounded-lg border p-4">

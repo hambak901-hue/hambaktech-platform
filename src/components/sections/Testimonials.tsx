@@ -23,7 +23,6 @@ export default function Testimonials() {
   return (
     <section className="py-24 bg-white">
       <div className="max-w-6xl mx-auto px-6">
-
         <h2 className="text-4xl font-bold text-center text-blue-700 mb-4">
           What Our Clients Say
         </h2>
@@ -43,7 +42,7 @@ export default function Testimonials() {
               </div>
 
               <p className="text-gray-700 italic mb-6">
-                "{item.review}"
+                &quot;{item.review}&quot;
               </p>
 
               <h3 className="font-bold text-lg">
@@ -56,7 +55,6 @@ export default function Testimonials() {
             </div>
           ))}
         </div>
-
       </div>
     </section>
   );

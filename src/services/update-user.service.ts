@@ -1,4 +1,7 @@
-import { PrismaClient } from "@prisma/client";
+import {
+  PrismaClient,
+  UserStatus,
+} from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -22,7 +25,7 @@ export async function updateUser(
     email: string;
     phone?: string;
     roleId: string;
-    status: string;
+    status: UserStatus;
   }
 ) {
   return prisma.user.update({
@@ -36,7 +39,7 @@ export async function updateUser(
       email: data.email,
       phone: data.phone,
       roleId: data.roleId,
-      status: data.status as any,
+      status: data.status,
     },
   });
 }

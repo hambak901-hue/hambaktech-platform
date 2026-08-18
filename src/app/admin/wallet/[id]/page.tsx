@@ -28,8 +28,8 @@ export default async function WalletDetailsPage({
 
             <p className="mt-2 text-sm text-gray-500">
               Detailed wallet balance, transaction history,
-              funding, withdrawals, and wallet controls will
-              be implemented in the Wallet milestone.
+              funding, refunds, and wallet controls will be
+              implemented in the Wallet milestone.
             </p>
           </div>
         </div>

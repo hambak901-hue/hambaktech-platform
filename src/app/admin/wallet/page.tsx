@@ -9,8 +9,7 @@ export default function AdminWalletPage() {
             </h1>
 
             <p className="text-gray-600">
-              Wallet management is being prepared for the
-              HambakTech financial services module.
+              Manage customer wallets and wallet transactions.
             </p>
           </div>
 
@@ -20,9 +19,9 @@ export default function AdminWalletPage() {
             </p>
 
             <p className="mt-2 text-sm text-gray-500">
-              Wallet balances, transactions, funding,
-              withdrawals, and wallet administration will
-              be managed here.
+              Wallet balances, transactions, funding, refunds,
+              and wallet administration will be implemented
+              in the Wallet milestone.
             </p>
           </div>
         </div>

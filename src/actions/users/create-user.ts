@@ -1,26 +1,39 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { Gender } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 
 export async function createUser(formData: FormData) {
-  const firstName = String(formData.get("firstName"));
-  const lastName = String(formData.get("lastName"));
-  const otherName = String(formData.get("otherName") ?? "");
-  const email = String(formData.get("email"));
-  const phone = String(formData.get("phone"));
-  const gender = String(formData.get("gender"));
-  const password = String(formData.get("password"));
+  const firstName = String(formData.get("firstName") ?? "").trim();
+  const lastName = String(formData.get("lastName") ?? "").trim();
+  const otherName = String(formData.get("otherName") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim();
+  const phone = String(formData.get("phone") ?? "").trim();
+  const genderValue = String(formData.get("gender") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  const roleId = String(formData.get("roleId") ?? "").trim();
 
-  // Role ID is a UUID string, NOT a number
-  const roleId = String(formData.get("roleId"));
+  if (!firstName || !lastName || !email || !password || !roleId) {
+    throw new Error("Required fields are missing.");
+  }
+
+  let gender: Gender | null = null;
+
+  if (genderValue) {
+    if (!Object.values(Gender).includes(genderValue as Gender)) {
+      throw new Error("Invalid gender selected.");
+    }
+
+    gender = genderValue as Gender;
+  }
 
   const existing = await prisma.user.findFirst({
     where: {
       OR: [
         { email },
-        { phone },
+        ...(phone ? [{ phone }] : []),
       ],
     },
   });
@@ -35,10 +48,10 @@ export async function createUser(formData: FormData) {
     data: {
       firstName,
       lastName,
-      otherName,
+      otherName: otherName || null,
       email,
-      phone,
-      gender: gender as any,
+      phone: phone || null,
+      gender,
       password: hashedPassword,
       roleId,
       status: "ACTIVE",
