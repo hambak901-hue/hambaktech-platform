@@ -9,7 +9,8 @@ export const authConfig: NextAuthConfig = {
     authorized({ auth, request }) {
       const isLoggedIn = !!auth?.user;
 
-      const isAdminPage = request.nextUrl.pathname.startsWith("/admin");
+      const isAdminPage =
+        request.nextUrl.pathname.startsWith("/admin");
 
       if (isAdminPage) {
         return isLoggedIn;

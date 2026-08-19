@@ -10,7 +10,12 @@ import {
 
 const prisma = new PrismaClient();
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+export const {
+  handlers,
+  signIn,
+  signOut,
+  auth,
+} = NextAuth({
   adapter: PrismaAdapter(prisma),
 
   session: {
@@ -34,7 +39,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
 
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        if (
+          !credentials?.email ||
+          !credentials?.password
+        ) {
           return null;
         }
 
@@ -45,6 +53,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           where: {
             email,
           },
+
           include: {
             role: true,
           },
@@ -56,10 +65,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const passwordMatch = await compare(
           password,
-          user.password
+          user.password,
         );
 
         if (!passwordMatch) {
+          return null;
+        }
+
+        if (user.status !== "ACTIVE") {
           return null;
         }
 
@@ -74,28 +87,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
 
   callbacks: {
-  async jwt({ token, user }) {
-    if (user) {
-      token.role = user.role;
-    }
-
-    return token;
-  },
-
-  async session({ session, token }) {
-    if (session.user) {
-      if (token.sub) {
-        session.user.id = token.sub;
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
       }
 
-      if (token.role) {
-        session.user.role = token.role as RoleType;
-      }
-    }
+      return token;
+    },
 
-    return session;
+    async session({ session, token }) {
+      if (session.user) {
+        if (token.sub) {
+          session.user.id = token.sub;
+        }
+
+        if (token.role) {
+          session.user.role =
+            token.role as RoleType;
+        }
+      }
+
+      return session;
+    },
   },
-},
 
   pages: {
     signIn: "/login",
