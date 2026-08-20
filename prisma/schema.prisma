@@ -60,12 +60,14 @@ model Role {
 
 model Permission {
   id          String           @id @default(uuid())
-  name        String           @unique
+  name        String
   action      PermissionAction
   description String?
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
   roles       RolePermission[]
+
+  @@unique([name, action])
 }
 
 model RolePermission {
@@ -163,9 +165,10 @@ model ServiceRequest {
   notes     String?
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
-  order     Order?      @relation(fields: [orderId], references: [id])
-  service   Service     @relation(fields: [serviceId], references: [id])
-  user      User        @relation(fields: [userId], references: [id])
+
+  order   Order?  @relation(fields: [orderId], references: [id])
+  service Service @relation(fields: [serviceId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([serviceId])
@@ -202,8 +205,9 @@ model WalletTransaction {
   processedAt      DateTime?
   createdAt        DateTime                @default(now())
   updatedAt        DateTime                @updatedAt
-  payment          Payment?
-  wallet           Wallet                  @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  payment Payment?
+  wallet  Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
 
   @@index([walletId])
   @@index([reference])
@@ -240,31 +244,33 @@ model OrderItem {
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  service     Service  @relation(fields: [serviceId], references: [id])
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  service Service @relation(fields: [serviceId], references: [id])
 
   @@index([orderId])
   @@index([serviceId])
 }
 
 model Payment {
-  id                  String             @id @default(uuid())
+  id                  String          @id @default(uuid())
   userId              String
   orderId             String?
-  walletTransactionId String?            @unique
-  reference           String             @unique
+  walletTransactionId String?         @unique
+  reference           String          @unique
   gatewayReference    String?
-  amount              Decimal            @db.Decimal(18, 2)
+  amount              Decimal         @db.Decimal(18, 2)
   method              PaymentMethod
   provider            PaymentProvider
-  status              PaymentStatus      @default(PENDING)
+  status              PaymentStatus   @default(PENDING)
   metadata            Json?
   paidAt              DateTime?
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
-  order               Order?             @relation(fields: [orderId], references: [id])
-  user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  walletTransaction   WalletTransaction? @relation(fields: [walletTransactionId], references: [id])
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  order             Order?             @relation(fields: [orderId], references: [id])
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  walletTransaction WalletTransaction? @relation(fields: [walletTransactionId], references: [id])
 
   @@index([userId])
   @@index([orderId])
@@ -309,9 +315,10 @@ model Enrollment {
   completedAt DateTime?
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
+
   certificate Certificate?
-  course      Course           @relation(fields: [courseId], references: [id])
-  student     Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course      Course       @relation(fields: [courseId], references: [id])
+  student     Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, courseId])
   @@index([studentId])
@@ -319,16 +326,17 @@ model Enrollment {
 }
 
 model Certificate {
-  id               String     @id @default(uuid())
+  id               String   @id @default(uuid())
   studentId        String
-  enrollmentId     String     @unique
-  certificateNo    String     @unique
-  issuedAt         DateTime   @default(now())
-  verificationCode String     @unique
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
-  enrollment       Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
-  student          Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  enrollmentId     String   @unique
+  certificateNo    String   @unique
+  issuedAt         DateTime @default(now())
+  verificationCode String   @unique
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  student    Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([certificateNo])
   @@index([verificationCode])

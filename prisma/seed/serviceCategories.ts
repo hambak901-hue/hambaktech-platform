@@ -7,22 +7,22 @@ export async function seedServiceCategories(
     {
       name: "NIN Services",
       description:
-        "National Identification Number registration and related services.",
+        "National Identification Number and related identity services.",
     },
     {
       name: "ICT Training",
       description:
-        "Information and communication technology training and courses.",
+        "Computer, technology, and digital skills training.",
     },
     {
       name: "Digital Services",
       description:
-        "Digital support, online services, and technology solutions.",
+        "Professional digital and technology services.",
     },
     {
-      name: "Online Registration",
+      name: "Online Solutions",
       description:
-        "Online application, registration, and documentation services.",
+        "Online registrations, applications, and other digital solutions.",
     },
   ];
 
@@ -31,15 +31,10 @@ export async function seedServiceCategories(
       where: {
         name: category.name,
       },
-
       update: {
         description: category.description,
       },
-
-      create: {
-        name: category.name,
-        description: category.description,
-      },
+      create: category,
     });
   }
 

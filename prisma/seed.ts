@@ -6,6 +6,7 @@ import { seedRoles } from "./seed/roles";
 import { seedPermissions } from "./seed/permissions";
 import { seedServiceCategories } from "./seed/serviceCategories";
 import { seedAdmin } from "./seed/admin";
+import { seedRolePermissions } from "./seed/rolePermissions";
 
 const prisma = new PrismaClient();
 
@@ -16,6 +17,7 @@ async function main() {
   await seedWebsite(prisma);
   await seedRoles(prisma);
   await seedPermissions(prisma);
+  await seedRolePermissions(prisma);
   await seedServiceCategories(prisma);
   await seedAdmin(prisma);
 
