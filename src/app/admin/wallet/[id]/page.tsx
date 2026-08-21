@@ -6,6 +6,8 @@ import WalletBalanceCard from "@/components/wallet/WalletBalanceCard";
 import WalletHistory from "@/components/wallet/WalletHistory";
 import { getWalletDetails } from "@/services/wallet.service";
 import { notFound } from "next/navigation";
+import { PermissionAction } from "@prisma/client";
+import { requirePermission } from "@/lib/permissions";
 
 interface WalletDetailsPageProps {
   params: Promise<{
@@ -16,6 +18,11 @@ interface WalletDetailsPageProps {
 export default async function WalletDetailsPage({
   params,
 }: WalletDetailsPageProps) {
+  await requirePermission(
+    "Wallet",
+    PermissionAction.READ,
+  );
+
   const { id } = await params;
 
   const wallet = await getWalletDetails(id);

@@ -68,7 +68,7 @@ export default function WalletTransactions({
           <tbody className="divide-y">
             {transactions.map((transaction) => (
               <tr key={transaction.id}>
-                <td className="px-6 py-4 text-sm text-gray-900">
+                <td className="px-6 py-4 text-sm font-medium text-gray-900">
                   {transaction.reference}
                 </td>
 

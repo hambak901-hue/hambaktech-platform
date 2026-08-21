@@ -1,37 +1,21 @@
 "use server";
 
-import { auth } from "@/auth";
-import { createActivityLog } from "@/services/activity-log.service";
-import { fundWallet as fundWalletService } from "@/services/wallet.service";
+import { PermissionAction } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
-export async function fundWallet(formData: FormData) {
-  const session = await auth();
+import { requirePermission } from "@/lib/permissions";
+import { createActivityLog } from "@/services/activity-log.service";
+import {
+  fundWallet as fundWalletService,
+} from "@/services/wallet.service";
 
-  console.log("========== WALLET FUND SESSION ==========");
-  console.log(
-    JSON.stringify(
-      {
-        authenticated: Boolean(session?.user),
-        userId: session?.user?.id ?? null,
-        email: session?.user?.email ?? null,
-        role: session?.user?.role ?? null,
-        user: session?.user ?? null,
-      },
-      null,
-      2
-    )
+export async function fundWallet(
+  formData: FormData,
+) {
+  const session = await requirePermission(
+    "Wallet",
+    PermissionAction.MANAGE,
   );
-  console.log("=========================================");
-
-  if (
-    !session?.user ||
-    !["SUPER_ADMIN", "ADMIN"].includes(
-      session.user.role,
-    )
-  ) {
-    throw new Error("Unauthorized.");
-  }
 
   const walletId = String(
     formData.get("walletId") ?? "",

@@ -1,10 +1,17 @@
+import { PermissionAction } from "@prisma/client";
+
 import WalletCard from "@/components/wallet/WalletCard";
+import { requirePermission } from "@/lib/permissions";
 import {
   getWalletStatistics,
   getWallets,
 } from "@/services/wallet.service";
 
 export default async function AdminWalletPage() {
+  await requirePermission(
+    "Wallet",
+    PermissionAction.READ,
+  );
   const [result, statistics] =
     await Promise.all([
       getWallets({

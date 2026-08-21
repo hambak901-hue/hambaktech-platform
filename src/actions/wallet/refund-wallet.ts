@@ -1,21 +1,23 @@
 "use server";
 
-import { auth } from "@/auth";
-import { createActivityLog } from "@/services/activity-log.service";
-import { refundWallet as refundWalletService } from "@/services/wallet.service";
+import {
+  PermissionAction,
+} from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
-export async function refundWallet(formData: FormData) {
-  const session = await auth();
+import { requirePermission } from "@/lib/permissions";
+import { createActivityLog } from "@/services/activity-log.service";
+import {
+  refundWallet as refundWalletService,
+} from "@/services/wallet.service";
 
-  if (
-    !session?.user ||
-    !["SUPER_ADMIN", "ADMIN"].includes(
-      session.user.role,
-    )
-  ) {
-    throw new Error("Unauthorized.");
-  }
+export async function refundWallet(
+  formData: FormData,
+) {
+  const session = await requirePermission(
+    "Wallet",
+    PermissionAction.MANAGE,
+  );
 
   const walletId = String(
     formData.get("walletId") ?? "",
@@ -40,8 +42,7 @@ export async function refundWallet(formData: FormData) {
   const result = await refundWalletService({
     walletId,
     amount,
-    description:
-      description || undefined,
+    description: description || undefined,
   });
 
   await createActivityLog({
