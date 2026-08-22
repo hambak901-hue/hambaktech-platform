@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { UserStatus } from "@prisma/client";
 
 import Pagination from "@/components/users/Pagination";
@@ -5,7 +6,7 @@ import UserFilters from "@/components/users/UserFilters";
 import UserSearch from "@/components/users/UserSearch";
 import UserStatistics from "@/components/users/UserStatistics";
 import UsersTable from "@/components/users/UsersTable";
-import { getRoles } from "@/services/roles.service";
+import { getAssignableRoles } from "@/services/roles.service";
 import {
   getUsers,
   getUserStatistics,
@@ -39,20 +40,29 @@ export default async function UsersPage({
 
       getUserStatistics(),
 
-      getRoles(),
+      getAssignableRoles(),
     ]);
 
   return (
     <div className="space-y-8">
 
-      <div>
-        <h1 className="text-3xl font-bold">
-          User Management
-        </h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">
+            User Management
+          </h1>
 
-        <p className="text-gray-500">
-          Manage platform users.
-        </p>
+          <p className="text-gray-500">
+            Manage platform users.
+          </p>
+        </div>
+
+        <Link
+          href="/admin/users/create"
+          className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-3 font-medium text-white transition hover:bg-blue-700"
+        >
+          + Create User
+        </Link>
       </div>
 
       <UserStatistics stats={stats} />

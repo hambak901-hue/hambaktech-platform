@@ -1,5 +1,6 @@
 import {
   PermissionAction,
+  RoleType,
 } from "@prisma/client";
 
 import { auth } from "@/auth";
@@ -10,24 +11,14 @@ export interface PermissionCheck {
   action: PermissionAction;
 }
 
-/**
- * Checks whether the currently authenticated user
- * has the requested permission.
- *
- * A MANAGE permission grants access to all actions
- * for the same resource.
- */
-export async function hasPermission(
-  resource: string,
-  action: PermissionAction,
-): Promise<boolean> {
+async function getAuthenticatedUser() {
   const session = await auth();
 
   if (!session?.user?.id) {
-    return false;
+    return null;
   }
 
-  const user = await prisma.user.findUnique({
+  return prisma.user.findUnique({
     where: {
       id: session.user.id,
     },
@@ -43,14 +34,23 @@ export async function hasPermission(
       },
     },
   });
+}
+
+export async function hasPermission(
+  resource: string,
+  action: PermissionAction,
+): Promise<boolean> {
+  const user = await getAuthenticatedUser();
 
   if (!user) {
     return false;
   }
 
-  const exactPermission =
-    `${resource}:${action}`;
+  if (user.role.type === RoleType.SUPER_ADMIN) {
+    return true;
+  }
 
+  const exactPermission = `${resource}:${action}`;
   const managePermission =
     `${resource}:${PermissionAction.MANAGE}`;
 
@@ -61,10 +61,6 @@ export async function hasPermission(
   );
 }
 
-/**
- * Requires the currently authenticated user
- * to have the requested permission.
- */
 export async function requirePermission(
   resource: string,
   action: PermissionAction,
@@ -89,10 +85,6 @@ export async function requirePermission(
   return session;
 }
 
-/**
- * Checks multiple permissions and returns true
- * when at least one permission is granted.
- */
 export async function hasAnyPermission(
   permissions: PermissionCheck[],
 ): Promise<boolean> {

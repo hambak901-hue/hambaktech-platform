@@ -1,5 +1,6 @@
 import {
   Prisma,
+  RoleType,
   UserStatus,
 } from "@prisma/client";
 
@@ -13,6 +14,14 @@ export interface GetUsersOptions {
   limit?: number;
 }
 
+const normalUsersWhere: Prisma.UserWhereInput = {
+  role: {
+    type: {
+      not: RoleType.SUPER_ADMIN,
+    },
+  },
+};
+
 export async function getUsers({
   search,
   roleId,
@@ -20,7 +29,9 @@ export async function getUsers({
   page = 1,
   limit = 10,
 }: GetUsersOptions = {}) {
-  const where: Prisma.UserWhereInput = {};
+  const where: Prisma.UserWhereInput = {
+    ...normalUsersWhere,
+  };
 
   if (search) {
     where.OR = [
@@ -65,18 +76,14 @@ export async function getUsers({
 
   const users = await prisma.user.findMany({
     where,
-
     include: {
       role: true,
       wallet: true,
     },
-
     orderBy: {
       createdAt: "desc",
     },
-
     skip: (page - 1) * limit,
-
     take: limit,
   });
 
@@ -97,7 +104,6 @@ export async function getUser(
     where: {
       id,
     },
-
     include: {
       role: true,
       wallet: true,
@@ -115,23 +121,40 @@ export async function getUserStatistics() {
     suspendedUsers,
     pendingUsers,
   ] = await Promise.all([
-    prisma.user.count(),
+    prisma.user.count({
+      where: normalUsersWhere,
+    }),
 
     prisma.user.count({
       where: {
-        status: UserStatus.ACTIVE,
+        AND: [
+          normalUsersWhere,
+          {
+            status: UserStatus.ACTIVE,
+          },
+        ],
       },
     }),
 
     prisma.user.count({
       where: {
-        status: UserStatus.SUSPENDED,
+        AND: [
+          normalUsersWhere,
+          {
+            status: UserStatus.SUSPENDED,
+          },
+        ],
       },
     }),
 
     prisma.user.count({
       where: {
-        status: UserStatus.PENDING,
+        AND: [
+          normalUsersWhere,
+          {
+            status: UserStatus.PENDING,
+          },
+        ],
       },
     }),
   ]);

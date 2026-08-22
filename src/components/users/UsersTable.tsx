@@ -1,10 +1,8 @@
 import UserActions from "./UserActions";
 import UserStatusBadge from "./UserStatusBadge";
 
-import type { UserListItem } from "@/types/user";
-
 interface Props {
-  users: UserListItem[];
+  users: any[];
 }
 
 export default function UsersTable({
@@ -26,9 +24,13 @@ export default function UsersTable({
 
   return (
     <div className="overflow-x-auto rounded-lg border bg-white shadow">
+
       <table className="min-w-full">
+
         <thead className="bg-gray-100">
+
           <tr>
+
             <th className="px-4 py-3 text-left">
               Name
             </th>
@@ -52,10 +54,13 @@ export default function UsersTable({
             <th className="px-4 py-3 text-left">
               Actions
             </th>
+
           </tr>
+
         </thead>
 
         <tbody>
+
           {users.map((user) => (
             <tr
               key={user.id}
@@ -93,8 +98,11 @@ export default function UsersTable({
               </td>
             </tr>
           ))}
+
         </tbody>
+
       </table>
+
     </div>
   );
 }

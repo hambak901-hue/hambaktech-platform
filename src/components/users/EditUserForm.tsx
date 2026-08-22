@@ -1,6 +1,13 @@
 "use client";
 
-import { updateUserAction } from "@/actions/users/edit/update-user";
+import {
+  updateUserAction,
+} from "@/actions/users/edit/update-user";
+
+interface Role {
+  id: string;
+  name: string;
+}
 
 type EditUserFormProps = {
   user: {
@@ -13,110 +20,139 @@ type EditUserFormProps = {
     roleId: string;
     status: string;
   };
+
+  roles: Role[];
 };
 
 export default function EditUserForm({
   user,
+  roles,
 }: EditUserFormProps) {
   return (
     <form
       action={updateUserAction}
       className="space-y-6 rounded-lg border bg-white p-6 shadow"
     >
-      <input type="hidden" name="id" defaultValue={user.id} />
+      <input
+        type="hidden"
+        name="id"
+        value={user.id}
+      />
 
-      <div>
-        <label className="block text-sm font-medium">
-          First Name
-        </label>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div>
+          <label className="block text-sm font-medium">
+            First Name
+          </label>
 
-        <input
-          name="firstName"
-          defaultValue={user.firstName}
-          className="mt-1 w-full rounded border p-2"
-          required
-        />
-      </div>
+          <input
+            name="firstName"
+            defaultValue={user.firstName}
+            className="mt-1 w-full rounded border p-2"
+            required
+          />
+        </div>
 
-      <div>
-        <label className="block text-sm font-medium">
-          Last Name
-        </label>
+        <div>
+          <label className="block text-sm font-medium">
+            Last Name
+          </label>
 
-        <input
-          name="lastName"
-          defaultValue={user.lastName}
-          className="mt-1 w-full rounded border p-2"
-          required
-        />
-      </div>
+          <input
+            name="lastName"
+            defaultValue={user.lastName}
+            className="mt-1 w-full rounded border p-2"
+            required
+          />
+        </div>
 
-      <div>
-        <label className="block text-sm font-medium">
-          Other Name
-        </label>
+        <div>
+          <label className="block text-sm font-medium">
+            Other Name
+          </label>
 
-        <input
-          name="otherName"
-          defaultValue={user.otherName ?? ""}
-          className="mt-1 w-full rounded border p-2"
-        />
-      </div>
+          <input
+            name="otherName"
+            defaultValue={user.otherName ?? ""}
+            className="mt-1 w-full rounded border p-2"
+          />
+        </div>
 
-      <div>
-        <label className="block text-sm font-medium">
-          Email
-        </label>
+        <div>
+          <label className="block text-sm font-medium">
+            Email
+          </label>
 
-        <input
-          type="email"
-          name="email"
-          defaultValue={user.email}
-          className="mt-1 w-full rounded border p-2"
-          required
-        />
-      </div>
+          <input
+            type="email"
+            name="email"
+            defaultValue={user.email}
+            className="mt-1 w-full rounded border p-2"
+            required
+          />
+        </div>
 
-      <div>
-        <label className="block text-sm font-medium">
-          Phone
-        </label>
+        <div>
+          <label className="block text-sm font-medium">
+            Phone
+          </label>
 
-        <input
-          name="phone"
-          defaultValue={user.phone ?? ""}
-          className="mt-1 w-full rounded border p-2"
-        />
-      </div>
+          <input
+            name="phone"
+            defaultValue={user.phone ?? ""}
+            className="mt-1 w-full rounded border p-2"
+          />
+        </div>
 
-      <div>
-        <label className="block text-sm font-medium">
-          Role ID
-        </label>
+        <div>
+          <label className="block text-sm font-medium">
+            Role
+          </label>
 
-        <input
-          name="roleId"
-          defaultValue={user.roleId}
-          className="mt-1 w-full rounded border p-2"
-          required
-        />
-      </div>
+          <select
+            name="roleId"
+            defaultValue={user.roleId}
+            className="mt-1 w-full rounded border p-2"
+            required
+          >
+            {roles.map((role) => (
+              <option
+                key={role.id}
+                value={role.id}
+              >
+                {role.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      <div>
-        <label className="block text-sm font-medium">
-          Status
-        </label>
+        <div>
+          <label className="block text-sm font-medium">
+            Status
+          </label>
 
-        <select
-          name="status"
-          defaultValue={user.status}
-          className="mt-1 w-full rounded border p-2"
-        >
-          <option value="ACTIVE">ACTIVE</option>
-          <option value="PENDING">PENDING</option>
-          <option value="SUSPENDED">SUSPENDED</option>
-          <option value="INACTIVE">INACTIVE</option>
-        </select>
+          <select
+            name="status"
+            defaultValue={user.status}
+            className="mt-1 w-full rounded border p-2"
+          >
+            <option value="ACTIVE">
+              ACTIVE
+            </option>
+
+            <option value="PENDING">
+              PENDING
+            </option>
+
+            <option value="SUSPENDED">
+              SUSPENDED
+            </option>
+
+            <option value="INACTIVE">
+              INACTIVE
+            </option>
+          </select>
+        </div>
       </div>
 
       <button

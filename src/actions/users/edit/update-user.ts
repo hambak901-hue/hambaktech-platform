@@ -1,34 +1,78 @@
 "use server";
 
-import { UserStatus } from "@prisma/client";
+import {
+  PermissionAction,
+  RoleType,
+  UserStatus,
+} from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
+import { requirePermission } from "@/lib/permissions";
 import { updateUser } from "@/services/update-user.service";
 
-export async function updateUserAction(formData: FormData) {
-  const id = String(formData.get("id") ?? "");
+export async function updateUserAction(
+  formData: FormData,
+) {
+  const id = String(
+    formData.get("id") ?? "",
+  );
 
-  const firstName = String(formData.get("firstName") ?? "").trim();
-  const lastName = String(formData.get("lastName") ?? "").trim();
-  const otherName = String(formData.get("otherName") ?? "").trim();
-  const email = String(formData.get("email") ?? "").trim();
-  const phone = String(formData.get("phone") ?? "").trim();
-  const roleId = String(formData.get("roleId") ?? "").trim();
-  const statusValue = String(formData.get("status") ?? "").trim();
+  const firstName = String(
+    formData.get("firstName") ?? "",
+  ).trim();
+
+  const lastName = String(
+    formData.get("lastName") ?? "",
+  ).trim();
+
+  const otherName = String(
+    formData.get("otherName") ?? "",
+  ).trim();
+
+  const email = String(
+    formData.get("email") ?? "",
+  ).trim();
+
+  const phone = String(
+    formData.get("phone") ?? "",
+  ).trim();
+
+  const roleId = String(
+    formData.get("roleId") ?? "",
+  ).trim();
+
+  const statusValue = String(
+    formData.get("status") ?? "",
+  ).trim();
 
   if (!id) {
     throw new Error("User ID is required.");
   }
 
-  if (!firstName || !lastName || !email || !roleId || !statusValue) {
-    throw new Error("Please fill in all required fields.");
+  await requirePermission(
+    "Users",
+    PermissionAction.UPDATE,
+  );
+
+  if (
+    !firstName ||
+    !lastName ||
+    !email ||
+    !roleId ||
+    !statusValue
+  ) {
+    throw new Error(
+      "Please fill in all required fields.",
+    );
   }
 
-  if (!Object.values(UserStatus).includes(statusValue as UserStatus)) {
+  if (
+    !Object.values(UserStatus).includes(
+      statusValue as UserStatus,
+    )
+  ) {
     throw new Error("Invalid user status.");
   }
-
-  const status = statusValue as UserStatus;
 
   await updateUser(id, {
     firstName,
@@ -37,7 +81,7 @@ export async function updateUserAction(formData: FormData) {
     email,
     phone: phone || undefined,
     roleId,
-    status,
+    status: statusValue as UserStatus,
   });
 
   revalidatePath("/admin/users");
