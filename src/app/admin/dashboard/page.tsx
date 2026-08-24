@@ -1,13 +1,22 @@
-import { getDashboardStats } from "@/services/dashboard.service";
-import { getCurrentUser } from "@/services/current-user.service";
-import { getRoleLabel } from "@/lib/roles";
+import AdminIcon from "@/components/admin/AdminIcon";
+import ActivityTimeline from "@/components/dashboard/ActivityTimeline";
 import StatCard from "@/components/dashboard/StatCard";
 
+import { getRoleLabel } from "@/lib/roles";
+import { getCurrentUser } from "@/services/current-user.service";
+import { getDashboardStats } from "@/services/dashboard.service";
+import { getActivityLogs } from "@/services/activity-log.service";
+
 export default async function DashboardPage() {
-  const [stats, user] = await Promise.all([
-    getDashboardStats(),
-    getCurrentUser(),
-  ]);
+  const [stats, user, activityResult] =
+    await Promise.all([
+      getDashboardStats(),
+      getCurrentUser(),
+      getActivityLogs({
+        page: 1,
+        limit: 6,
+      }),
+    ]);
 
   const fullName = user
     ? [user.firstName, user.otherName, user.lastName]
@@ -19,65 +28,142 @@ export default async function DashboardPage() {
     ? getRoleLabel(user.role.type)
     : "User";
 
+  const activities = activityResult.logs.map(
+    (activity) => ({
+      id: activity.id,
+      action: activity.action,
+      description: activity.description,
+      createdAt: activity.createdAt.toISOString(),
+      userName: activity.user
+        ? [
+            activity.user.firstName,
+            activity.user.lastName,
+          ]
+            .filter(Boolean)
+            .join(" ")
+        : undefined,
+    }),
+  );
+
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">
+      <section>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-950">
           HambakTech Dashboard
         </h1>
 
-        <p className="text-gray-500">
+        <p className="mt-2 text-slate-500">
           Welcome back, {fullName}.
         </p>
 
-        <p className="mt-1 text-sm text-gray-400">
+        <p className="mt-1 text-sm font-medium text-slate-400">
           {roleLabel}
         </p>
-      </div>
+      </section>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <section
+        aria-label="Dashboard statistics"
+        className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4"
+      >
         <StatCard
           title="Users"
           value={stats.users}
-          icon="👥"
-          color="bg-blue-600"
+          icon={
+            <AdminIcon
+              name="users"
+              className="h-7 w-7"
+            />
+          }
+          iconBackground="bg-blue-600"
         />
 
         <StatCard
           title="Services"
           value={stats.services}
-          icon="🛠"
-          color="bg-green-600"
+          icon={
+            <AdminIcon
+              name="services"
+              className="h-7 w-7"
+            />
+          }
+          iconBackground="bg-emerald-500"
         />
 
         <StatCard
           title="Orders"
           value={stats.orders}
-          icon="📦"
-          color="bg-orange-500"
+          icon={
+            <AdminIcon
+              name="orders"
+              className="h-7 w-7"
+            />
+          }
+          iconBackground="bg-orange-500"
         />
 
         <StatCard
           title="Payments"
           value={stats.payments}
-          icon="💳"
-          color="bg-purple-600"
+          icon={
+            <AdminIcon
+              name="payments"
+              className="h-7 w-7"
+            />
+          }
+          iconBackground="bg-violet-600"
+        />
+
+        <StatCard
+          title="Wallet"
+          value={stats.wallets ?? 0}
+          icon={
+            <AdminIcon
+              name="wallet"
+              className="h-7 w-7"
+            />
+          }
+          iconBackground="bg-blue-500"
         />
 
         <StatCard
           title="Students"
           value={stats.students}
-          icon="🎓"
-          color="bg-indigo-600"
+          icon={
+            <AdminIcon
+              name="academy"
+              className="h-7 w-7"
+            />
+          }
+          iconBackground="bg-cyan-600"
         />
 
         <StatCard
-          title="Revenue"
-          value={`₦${Number(stats.revenue).toLocaleString()}`}
-          icon="💰"
-          color="bg-emerald-600"
+          title="NIN Applications"
+          value="—"
+          icon={
+            <AdminIcon
+              name="nin"
+              className="h-7 w-7"
+            />
+          }
+          iconBackground="bg-cyan-500"
         />
-      </div>
+
+        <StatCard
+          title="Revenue (Today)"
+          value={`₦${Number(
+            stats.revenue,
+          ).toLocaleString()}`}
+          icon={
+            <span className="text-2xl font-bold">
+              ₦
+            </span>
+          }
+          iconBackground="bg-emerald-600"
+        />
+      </section>
+
+      <ActivityTimeline activities={activities} />
     </div>
   );
 }

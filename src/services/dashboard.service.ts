@@ -1,12 +1,17 @@
 import { prisma } from "@/lib/prisma";
 
 export async function getDashboardStats() {
+  const startOfToday = new Date();
+
+  startOfToday.setHours(0, 0, 0, 0);
+
   const [
     users,
     services,
     orders,
     payments,
     students,
+    wallets,
     revenue,
   ] = await Promise.all([
     prisma.user.count(),
@@ -23,9 +28,14 @@ export async function getDashboardStats() {
 
     prisma.student.count(),
 
+    prisma.wallet.count(),
+
     prisma.payment.aggregate({
       where: {
         status: "PAID",
+        paidAt: {
+          gte: startOfToday,
+        },
       },
 
       _sum: {
@@ -40,6 +50,7 @@ export async function getDashboardStats() {
     orders,
     payments,
     students,
+    wallets,
     revenue: revenue._sum.amount ?? 0,
   };
 }
