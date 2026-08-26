@@ -1,39 +1,56 @@
-# HambakTech Release Notes
+# Release Notes
 
-## Version 0.1.0
+## Unreleased
 
 ### Foundation
 
-- Next.js 15
+- Established structured project architecture.
+- Added Prisma configuration.
+- Added Prisma command scripts.
+- Added database documentation.
+- Added architecture documentation.
+- Added coding standards.
+- Added deployment documentation.
+- Added project roadmap.
+- Added project progress tracking.
+
+## v0.1.0 Foundation
+
+### Completed
+
+- Next.js application foundation
 - TypeScript
 - Tailwind CSS
-- Prisma
+- ESLint
+- Prisma ORM
 - PostgreSQL
+- Authentication foundation
+- User management foundation
+- Role and permission foundation
+- Activity logging foundation
+- Wallet foundation
+- Academy foundation
+- Service foundation
+- Order foundation
+- Payment foundation
 
----
+### Verification
 
-### Added
+- Prisma validation: PASS
+- Prisma Client generation: PASS
+- Database migration status: PASS
+- TypeScript: PASS
+- ESLint: PASS
+- Production build: PASS
 
-- Authentication
-- Dashboard
-- User Management (Phase 1)
-- Documentation Structure
+## Release Policy
 
----
+Every release must:
 
-### Fixed
-
-- Prisma Client imports
-- Dashboard statistics
-- Role loading
-- User creation workflow
-- Routing improvements
-
----
-
-### Upcoming
-
-- Complete User Management
-- Wallet Module
-- Services Module
-- Orders Module
+1. pass automated verification
+2. have updated documentation
+3. have database migration verification
+4. have release notes
+5. be committed to Git
+6. be pushed to the remote repository
+7. receive an appropriate version tag when production-ready

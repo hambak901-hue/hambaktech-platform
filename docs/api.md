@@ -1,93 +1,41 @@
 # HambakTech API Documentation
 
-## Overview
+## 1. Overview
 
-The HambakTech platform uses:
+The HambakTech platform uses the Next.js App Router for application routes and API endpoints.
 
-- Next.js App Router
-- Server Actions
-- Route Handlers
-- Prisma ORM
+API routes are located under:
 
----
+src/app/api/
 
-## Authentication
+Business logic is separated into reusable services under:
 
-Routes
+src/services/
 
-- /api/auth/[...nextauth]
+Server-side mutations are handled through:
 
-Authentication Provider
+src/actions/
 
-- Credentials
+The API architecture is designed to support:
 
-Protected by
-
-- Middleware
-- Session Validation
-
----
-
-## Admin APIs
-
-User Management
-
-- Create User
-- View User
-- Edit User
-- Delete User
-
-Wallet
-
-- Fund Wallet
-- Refund Wallet
-- Wallet History
-
-Orders
-
-- Create Order
-- Update Order
-- Cancel Order
-
-Payments
-
-- Verify Payment
-- Record Payment
-
-Academy
-
-- Enroll Student
-- Issue Certificate
-- Verify Certificate
+- Authentication
+- User management
+- Services
+- Service requests
+- Orders
+- Wallet
+- Payments
+- Academy
+- NIN Centre
+- Notifications
+- Reports
+- AI Assistant
 
 ---
 
-## Public APIs
+## 2. Current API Structure
 
-Future APIs
+Current authentication API:
 
-- Contact Form
-- Service Request
-- Course Registration
-- Certificate Verification
-- NIN Verification
-
----
-
-## API Standards
-
-- JSON Responses
-- Error Handling
-- Authentication Required
-- Validation Required
-- Logging Enabled
-
----
-
-## Future Mobile API
-
-The platform will expose REST APIs for:
-
-- Android
-- iOS
-- Third-party integrations
+```text
+src/app/api/auth/[...nextauth]/route.ts

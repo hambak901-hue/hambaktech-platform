@@ -1,51 +1,48 @@
-# HambakTech Roadmap
+# HambakTech Smart Digital Platform Roadmap
 
-## Version 1.0
+## Product Vision
 
-### Completed
+HambakTech is being developed as a scalable digital services platform capable of supporting:
 
-- Foundation
-- Database Design
-- Authentication
-- Dashboard
-
----
-
-### In Progress
-
-- User Management
-
----
-
-### Planned
-
-- Wallet
-- Services
-- Orders
-- Payments
-- Academy
-- Student ID
-- Certificate Verification
-- NIN Centre
-- CMS
-- Reports
-- AI Assistant
+- Thousands of users
+- Multiple services
+- Multiple countries
+- Web applications
+- Future mobile applications
+- Additional developers
+- External integrations
+- Secure financial operations
+- Digital education
+- Government-related service workflows
+- AI-assisted customer support
 
 ---
 
-## Future Versions
+# Development Rules
 
-### Version 1.1
+## Rule 1 — Milestone Completion
 
-- Email Notifications
-- SMS Notifications
-- Audit Logs
-- Mobile API
+Every milestone must reach 100% before moving to the next milestone.
 
-### Version 2.0
+## Rule 2 — Configuration
 
-- Android App
-- iOS App
-- Multi-Company Support
-- Multi-Country Support
-- AI Automation
+Nothing should be hardcoded unless it genuinely belongs in code.
+
+Configurable values belong in:
+
+- Database
+- Admin dashboard
+- Settings
+- Environment variables
+
+## Rule 3 — Feature Completion
+
+Every feature must be:
+
+```text
+Built
+→ Tested
+→ Fixed
+→ Committed
+→ Pushed
+→ Documented

@@ -1,71 +1,12 @@
 # HambakTech Deployment Guide
 
-## Requirements
+## 1. Overview
 
-- Node.js LTS
-- PostgreSQL
-- Git
-- npm
+This document describes how to install, verify and run the HambakTech platform.
 
----
+Production deployment will be finalized during:
 
-## Installation
+```text
+Milestone 13 — Production Hardening
 
-Clone Repository
-
-git clone <repository>
-
-Install Packages
-
-npm install
-
----
-
-## Environment
-
-Configure:
-
-.env
-
-Required Variables
-
-DATABASE_URL
-
-NEXTAUTH_SECRET
-
-NEXTAUTH_URL
-
----
-
-## Database
-
-Generate Prisma Client
-
-npx prisma generate
-
-Run Migration
-
-npx prisma migrate deploy
-
-Seed Database
-
-npx prisma db seed
-
----
-
-## Production Build
-
-npm run build
-
-Start Application
-
-npm start
-
----
-
-## Recommended Hosting
-
-- Vercel
-- Railway
-- DigitalOcean
-- VPS
+Milestone 14 — V1.0 Release
