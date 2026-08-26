@@ -2,7 +2,6 @@
 
 import {
   PermissionAction,
-  RoleType,
   UserStatus,
 } from "@prisma/client";
 import { revalidatePath } from "next/cache";

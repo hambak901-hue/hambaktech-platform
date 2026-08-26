@@ -1,19 +1,29 @@
+import { UserStatus } from "@prisma/client";
+
 import UserActions from "./UserActions";
 import UserStatusBadge from "./UserStatusBadge";
 
-interface Props {
-  users: any[];
+interface UserTableUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  status: UserStatus;
+  createdAt: Date | string;
+  role?: {
+    name: string;
+  } | null;
 }
 
-export default function UsersTable({
-  users,
-}: Props) {
+interface Props {
+  users: UserTableUser[];
+}
+
+export default function UsersTable({ users }: Props) {
   if (users.length === 0) {
     return (
       <div className="rounded-lg border bg-white p-10 text-center shadow">
-        <h2 className="text-xl font-semibold">
-          No users found
-        </h2>
+        <h2 className="text-xl font-semibold">No users found</h2>
 
         <p className="mt-2 text-gray-500">
           Try changing your search or filter.
@@ -24,43 +34,19 @@ export default function UsersTable({
 
   return (
     <div className="overflow-x-auto rounded-lg border bg-white shadow">
-
       <table className="min-w-full">
-
         <thead className="bg-gray-100">
-
           <tr>
-
-            <th className="px-4 py-3 text-left">
-              Name
-            </th>
-
-            <th className="px-4 py-3 text-left">
-              Email
-            </th>
-
-            <th className="px-4 py-3 text-left">
-              Role
-            </th>
-
-            <th className="px-4 py-3 text-left">
-              Status
-            </th>
-
-            <th className="px-4 py-3 text-left">
-              Created
-            </th>
-
-            <th className="px-4 py-3 text-left">
-              Actions
-            </th>
-
+            <th className="px-4 py-3 text-left">Name</th>
+            <th className="px-4 py-3 text-left">Email</th>
+            <th className="px-4 py-3 text-left">Role</th>
+            <th className="px-4 py-3 text-left">Status</th>
+            <th className="px-4 py-3 text-left">Created</th>
+            <th className="px-4 py-3 text-left">Actions</th>
           </tr>
-
         </thead>
 
         <tbody>
-
           {users.map((user) => (
             <tr
               key={user.id}
@@ -70,24 +56,18 @@ export default function UsersTable({
                 {user.firstName} {user.lastName}
               </td>
 
-              <td className="px-4 py-3">
-                {user.email}
-              </td>
+              <td className="px-4 py-3">{user.email}</td>
 
               <td className="px-4 py-3">
                 {user.role?.name ?? "-"}
               </td>
 
               <td className="px-4 py-3">
-                <UserStatusBadge
-                  status={user.status}
-                />
+                <UserStatusBadge status={user.status} />
               </td>
 
               <td className="px-4 py-3">
-                {new Date(
-                  user.createdAt
-                ).toLocaleDateString()}
+                {new Date(user.createdAt).toLocaleDateString()}
               </td>
 
               <td className="px-4 py-3">
@@ -98,11 +78,8 @@ export default function UsersTable({
               </td>
             </tr>
           ))}
-
         </tbody>
-
       </table>
-
     </div>
   );
 }
