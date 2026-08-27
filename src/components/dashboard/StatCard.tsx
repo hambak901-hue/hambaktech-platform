@@ -1,33 +1,39 @@
 import type { ReactNode } from "react";
 
-type Props = {
+interface Props {
   title: string;
   value: number | string;
   icon: ReactNode;
-  iconBackground: string;
-};
+  color?: string;
+  iconBackground?: string;
+}
 
 export default function StatCard({
   title,
   value,
   icon,
+  color,
   iconBackground,
 }: Props) {
+  const backgroundClass =
+    iconBackground ?? color ?? "bg-blue-600";
+
   return (
-    <div className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md">
+    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-lg">
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-sm font-medium text-slate-500">
+          <p className="text-sm font-medium text-gray-500">
             {title}
           </p>
 
-          <p className="mt-3 truncate text-3xl font-bold tracking-tight text-slate-950">
+          <h2 className="mt-2 text-3xl font-bold text-gray-900">
             {value}
-          </p>
+          </h2>
         </div>
 
         <div
-          className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-white ${iconBackground}`}
+          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-2xl text-white ${backgroundClass}`}
+          aria-hidden="true"
         >
           {icon}
         </div>
