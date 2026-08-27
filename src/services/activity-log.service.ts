@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+
 import { prisma } from "@/lib/prisma";
 
 export interface CreateActivityLogInput {
@@ -21,51 +22,90 @@ export interface GetActivityLogsOptions {
   limit?: number;
 }
 
+function buildActivityLogData(
+  input: CreateActivityLogInput,
+): Prisma.ActivityLogCreateInput {
+  return {
+    ...(input.userId
+      ? {
+          user: {
+            connect: {
+              id: input.userId,
+            },
+          },
+        }
+      : {}),
+    action: input.action,
+    entity: input.entity,
+    entityId: input.entityId ?? null,
+    description: input.description ?? null,
+    metadata:
+      input.metadata === null
+        ? Prisma.JsonNull
+        : input.metadata ?? undefined,
+    ipAddress: input.ipAddress ?? null,
+    userAgent: input.userAgent ?? null,
+  };
+}
+
+/**
+ * Create an activity log using the normal
+ * application Prisma client.
+ */
 export async function createActivityLog(
   input: CreateActivityLogInput,
 ) {
   return prisma.activityLog.create({
-    data: {
-      userId: input.userId ?? null,
-      action: input.action,
-      entity: input.entity,
-      entityId: input.entityId ?? null,
-      description: input.description ?? null,
-      metadata: input.metadata ?? undefined,
-      ipAddress: input.ipAddress ?? null,
-      userAgent: input.userAgent ?? null,
-    },
+    data: buildActivityLogData(input),
+  });
+}
+
+/**
+ * Create an activity log using an existing
+ * Prisma transaction client.
+ *
+ * This allows the activity log to commit or
+ * roll back together with the surrounding
+ * database transaction.
+ */
+export async function createActivityLogInTransaction(
+  tx: Prisma.TransactionClient,
+  input: CreateActivityLogInput,
+) {
+  return tx.activityLog.create({
+    data: buildActivityLogData(input),
   });
 }
 
 export async function getActivityLogs(
   options: GetActivityLogsOptions = {},
 ) {
-  const page = Math.max(options.page ?? 1, 1);
+  const page = Math.max(
+    options.page ?? 1,
+    1,
+  );
+
   const limit = Math.min(
     Math.max(options.limit ?? 20, 1),
     100,
   );
 
-  const where = {
+  const where: Prisma.ActivityLogWhereInput = {
     ...(options.userId
       ? {
           userId: options.userId,
         }
       : {}),
-
     ...(options.action
       ? {
           action: options.action,
         }
       : {}),
-
     ...(options.entity
       ? {
           entity: options.entity,
         }
       : {}),
-
     ...(options.entityId
       ? {
           entityId: options.entityId,
@@ -73,41 +113,46 @@ export async function getActivityLogs(
       : {}),
   };
 
-  const [logs, total] = await Promise.all([
-    prisma.activityLog.findMany({
-      where,
-      include: {
-        user: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
+  const [logs, total] =
+    await Promise.all([
+      prisma.activityLog.findMany({
+        where,
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
           },
         },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      skip: (page - 1) * limit,
-      take: limit,
-    }),
+        orderBy: {
+          createdAt: "desc",
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
 
-    prisma.activityLog.count({
-      where,
-    }),
-  ]);
+      prisma.activityLog.count({
+        where,
+      }),
+    ]);
 
   return {
     logs,
     total,
     page,
     limit,
-    totalPages: Math.ceil(total / limit),
+    totalPages: Math.ceil(
+      total / limit,
+    ),
   };
 }
 
-export async function getActivityLog(id: string) {
+export async function getActivityLog(
+  id: string,
+) {
   return prisma.activityLog.findUnique({
     where: {
       id,
@@ -128,9 +173,17 @@ export async function getActivityLog(id: string) {
 export async function getActivityLogStatistics() {
   const startOfToday = new Date();
 
-  startOfToday.setHours(0, 0, 0, 0);
+  startOfToday.setHours(
+    0,
+    0,
+    0,
+    0,
+  );
 
-  const [totalLogs, todayLogs] = await Promise.all([
+  const [
+    totalLogs,
+    todayLogs,
+  ] = await Promise.all([
     prisma.activityLog.count(),
 
     prisma.activityLog.count({
