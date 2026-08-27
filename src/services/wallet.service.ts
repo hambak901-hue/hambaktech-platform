@@ -1,12 +1,11 @@
 import {
   Prisma,
-  PrismaClient,
   WalletStatus,
   WalletTransactionStatus,
   WalletTransactionType,
 } from "@prisma/client";
 
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 const TRANSACTION_RETRIES = 3;
 
@@ -86,6 +85,122 @@ async function runSerializableTransaction<T>(
   throw new Error(
     "Transaction failed after multiple attempts.",
   );
+}
+
+/**
+ * Creates a wallet for an eligible user.
+ *
+ * Wallet provisioning is intentionally idempotent:
+ * if the user already has a wallet, the existing wallet is returned.
+ *
+ * The application currently considers every ACTIVE non-SUPER_ADMIN
+ * user eligible for a wallet.
+ */
+export async function createWalletForUser(
+  userId: string,
+) {
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    include: {
+      role: true,
+      wallet: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found.");
+  }
+
+  if (user.role.type === "SUPER_ADMIN") {
+    throw new Error(
+      "SUPER_ADMIN users are not eligible for wallets.",
+    );
+  }
+
+  if (user.status !== "ACTIVE") {
+    throw new Error(
+      "Only active users are eligible for wallets.",
+    );
+  }
+
+  if (user.wallet) {
+    return user.wallet;
+  }
+
+  try {
+    return await prisma.wallet.create({
+      data: {
+        userId: user.id,
+        balance: new Prisma.Decimal(0),
+        currency: "NGN",
+        status: WalletStatus.ACTIVE,
+      },
+    });
+  } catch (error) {
+    if (
+      error instanceof
+        Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      const existingWallet =
+        await prisma.wallet.findUnique({
+          where: {
+            userId: user.id,
+          },
+        });
+
+      if (existingWallet) {
+        return existingWallet;
+      }
+    }
+
+    throw error;
+  }
+}
+
+/**
+ * Returns active non-SUPER_ADMIN users who do not yet have wallets.
+ *
+ * Used by the administrative wallet provisioning interface.
+ */
+export async function getUsersWithoutWallet() {
+  return prisma.user.findMany({
+    where: {
+      status: "ACTIVE",
+      role: {
+        type: {
+          not: "SUPER_ADMIN",
+        },
+      },
+      wallet: {
+        is: null,
+      },
+    },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      otherName: true,
+      email: true,
+      phone: true,
+      role: {
+        select: {
+          name: true,
+          type: true,
+        },
+      },
+    },
+    orderBy: [
+      {
+        firstName: "asc",
+      },
+      {
+        lastName: "asc",
+      },
+    ],
+  });
 }
 
 export async function getWallets({
