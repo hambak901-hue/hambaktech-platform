@@ -1,5 +1,9 @@
 import { Prisma } from "@prisma/client";
 
+import {
+  getPagination,
+  getTotalPages,
+} from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
 
 export interface CreateActivityLogInput {
@@ -80,15 +84,10 @@ export async function createActivityLogInTransaction(
 export async function getActivityLogs(
   options: GetActivityLogsOptions = {},
 ) {
-  const page = Math.max(
-    options.page ?? 1,
-    1,
-  );
-
-  const limit = Math.min(
-    Math.max(options.limit ?? 20, 1),
-    100,
-  );
+  const pagination = getPagination({
+    page: options.page ?? 1,
+    limit: options.limit ?? 20,
+  });
 
   const where: Prisma.ActivityLogWhereInput = {
     ...(options.userId
@@ -130,8 +129,8 @@ export async function getActivityLogs(
         orderBy: {
           createdAt: "desc",
         },
-        skip: (page - 1) * limit,
-        take: limit,
+        skip: pagination.skip,
+        take: pagination.limit,
       }),
 
       prisma.activityLog.count({
@@ -142,10 +141,11 @@ export async function getActivityLogs(
   return {
     logs,
     total,
-    page,
-    limit,
-    totalPages: Math.ceil(
-      total / limit,
+    page: pagination.page,
+    limit: pagination.limit,
+    totalPages: getTotalPages(
+      total,
+      pagination.limit,
     ),
   };
 }

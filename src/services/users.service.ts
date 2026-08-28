@@ -4,6 +4,7 @@ import {
   UserStatus,
 } from "@prisma/client";
 
+import { getPagination, getTotalPages } from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
 
 export interface GetUsersOptions {
@@ -29,33 +30,40 @@ export async function getUsers({
   page = 1,
   limit = 10,
 }: GetUsersOptions = {}) {
+  const pagination = getPagination({
+    page,
+    limit,
+  });
+
   const where: Prisma.UserWhereInput = {
     ...normalUsersWhere,
   };
 
-  if (search) {
+  if (search?.trim()) {
+    const query = search.trim();
+
     where.OR = [
       {
         firstName: {
-          contains: search,
+          contains: query,
           mode: "insensitive",
         },
       },
       {
         lastName: {
-          contains: search,
+          contains: query,
           mode: "insensitive",
         },
       },
       {
         email: {
-          contains: search,
+          contains: query,
           mode: "insensitive",
         },
       },
       {
         phone: {
-          contains: search,
+          contains: query,
           mode: "insensitive",
         },
       },
@@ -83,17 +91,18 @@ export async function getUsers({
     orderBy: {
       createdAt: "desc",
     },
-    skip: (page - 1) * limit,
-    take: limit,
+    skip: pagination.skip,
+    take: pagination.limit,
   });
 
   return {
     users,
     total,
-    totalPages: Math.ceil(
-      total / limit,
+    totalPages: getTotalPages(
+      total,
+      pagination.limit,
     ),
-    currentPage: page,
+    currentPage: pagination.page,
   };
 }
 

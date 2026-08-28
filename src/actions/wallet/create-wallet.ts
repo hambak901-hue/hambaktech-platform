@@ -2,13 +2,14 @@
 
 import {
   PermissionAction,
-  WalletStatus,
+  RoleType,
 } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 import { requirePermission } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { createActivityLog } from "@/services/activity-log.service";
+import { createWalletForUser } from "@/services/wallet.service";
 
 export interface CreateWalletState {
   success: boolean;
@@ -53,11 +54,19 @@ export async function createWallet(
     };
   }
 
-  if (user.role.type === "SUPER_ADMIN") {
+  if (user.role.type === RoleType.SUPER_ADMIN) {
     return {
       success: false,
       message:
         "SUPER_ADMIN users cannot have customer wallets.",
+    };
+  }
+
+  if (user.status !== "ACTIVE") {
+    return {
+      success: false,
+      message:
+        "Only active users are eligible for wallets.",
     };
   }
 
@@ -69,35 +78,42 @@ export async function createWallet(
     };
   }
 
-  const wallet = await prisma.wallet.create({
-    data: {
-      userId: user.id,
-      balance: 0,
-      currency: "NGN",
-      status: WalletStatus.ACTIVE,
-    },
-  });
+  try {
+    const wallet = await createWalletForUser(
+      user.id,
+    );
 
-  await createActivityLog({
-    userId: session.user.id,
-    action: "WALLET_CREATE",
-    entity: "Wallet",
-    entityId: wallet.id,
-    description: `Wallet created for ${user.firstName} ${user.lastName}.`,
-    metadata: {
+    await createActivityLog({
+      userId: session.user.id,
+      action: "WALLET_CREATE",
+      entity: "Wallet",
+      entityId: wallet.id,
+      description: `Wallet created for ${user.firstName} ${user.lastName}.`,
+      metadata: {
+        walletId: wallet.id,
+        customerId: user.id,
+        currency: wallet.currency,
+        openingBalance: "0.00",
+        status: wallet.status,
+      },
+    });
+
+    revalidatePath("/admin/wallet");
+    revalidatePath("/admin/users");
+    revalidatePath(`/admin/users/${user.id}`);
+
+    return {
+      success: true,
+      message: "Wallet created successfully.",
       walletId: wallet.id,
-      customerId: user.id,
-      currency: wallet.currency,
-    },
-  });
-
-  revalidatePath("/admin/wallet");
-  revalidatePath("/admin/users");
-  revalidatePath(`/admin/users/${user.id}`);
-
-  return {
-    success: true,
-    message: "Wallet created successfully.",
-    walletId: wallet.id,
-  };
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Unable to create wallet.",
+    };
+  }
 }

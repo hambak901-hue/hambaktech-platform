@@ -5,6 +5,10 @@ import {
   WalletTransactionType,
 } from "@prisma/client";
 
+import {
+  getPagination,
+  getTotalPages,
+} from "@/lib/pagination";
 import { prisma } from "@/lib/prisma";
 
 const TRANSACTION_RETRIES = 3;
@@ -209,12 +213,10 @@ export async function getWallets({
   page = 1,
   limit = 10,
 }: GetWalletsOptions = {}) {
-  const safePage = Math.max(page, 1);
-
-  const safeLimit = Math.min(
-    Math.max(limit, 1),
-    100,
-  );
+  const pagination = getPagination({
+    page,
+    limit,
+  });
 
   const where: Prisma.WalletWhereInput = {};
 
@@ -273,8 +275,8 @@ export async function getWallets({
       orderBy: {
         createdAt: "desc",
       },
-      skip: (safePage - 1) * safeLimit,
-      take: safeLimit,
+      skip: pagination.skip,
+      take: pagination.limit,
     }),
 
     prisma.wallet.count({
@@ -285,10 +287,11 @@ export async function getWallets({
   return {
     wallets,
     total,
-    currentPage: safePage,
-    limit: safeLimit,
-    totalPages: Math.ceil(
-      total / safeLimit,
+    currentPage: pagination.page,
+    limit: pagination.limit,
+    totalPages: getTotalPages(
+      total,
+      pagination.limit,
     ),
   };
 }
@@ -348,12 +351,10 @@ export async function getWalletTransactions(
   page = 1,
   limit = 20,
 ) {
-  const safePage = Math.max(page, 1);
-
-  const safeLimit = Math.min(
-    Math.max(limit, 1),
-    100,
-  );
+  const pagination = getPagination({
+    page,
+    limit,
+  });
 
   const where = {
     walletId,
@@ -366,8 +367,8 @@ export async function getWalletTransactions(
         orderBy: {
           createdAt: "desc",
         },
-        skip: (safePage - 1) * safeLimit,
-        take: safeLimit,
+        skip: pagination.skip,
+        take: pagination.limit,
       }),
 
       prisma.walletTransaction.count({
@@ -378,10 +379,11 @@ export async function getWalletTransactions(
   return {
     transactions,
     total,
-    currentPage: safePage,
-    limit: safeLimit,
-    totalPages: Math.ceil(
-      total / safeLimit,
+    currentPage: pagination.page,
+    limit: pagination.limit,
+    totalPages: getTotalPages(
+      total,
+      pagination.limit,
     ),
   };
 }

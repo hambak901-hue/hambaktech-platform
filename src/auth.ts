@@ -2,13 +2,9 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { compare } from "bcryptjs";
+import { RoleType } from "@prisma/client";
 
-import {
-  PrismaClient,
-  RoleType,
-} from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export const {
   handlers,
@@ -46,14 +42,16 @@ export const {
           return null;
         }
 
-        const email = String(credentials.email);
+        const email = String(credentials.email)
+          .trim()
+          .toLowerCase();
+
         const password = String(credentials.password);
 
         const user = await prisma.user.findUnique({
           where: {
             email,
           },
-
           include: {
             role: true,
           },
