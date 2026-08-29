@@ -5,8 +5,7 @@ import { revalidatePath } from "next/cache";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-
-const MIN_PASSWORD_LENGTH = 8;
+import { validatePassword } from "@/lib/validation/password";
 
 export async function changePasswordAction(
   formData: FormData,
@@ -39,11 +38,7 @@ export async function changePasswordAction(
     );
   }
 
-  if (newPassword.length < MIN_PASSWORD_LENGTH) {
-    throw new Error(
-      "New password must be at least 8 characters.",
-    );
-  }
+  validatePassword(newPassword);
 
   if (newPassword !== confirmPassword) {
     throw new Error(

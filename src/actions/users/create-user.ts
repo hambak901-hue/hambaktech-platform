@@ -10,6 +10,7 @@ import { redirect } from "next/navigation";
 
 import { requirePermission } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import { validatePassword } from "@/lib/validation/password";
 import { createActivityLogInTransaction } from "@/services/activity-log.service";
 
 export async function createUser(
@@ -66,11 +67,7 @@ export async function createUser(
     );
   }
 
-  if (password.length < 8) {
-    throw new Error(
-      "Password must be at least 8 characters.",
-    );
-  }
+  validatePassword(password);
 
   let gender: Gender | null = null;
 

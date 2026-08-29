@@ -4,8 +4,7 @@ import { createHash } from "crypto";
 import bcrypt from "bcryptjs";
 
 import { prisma } from "@/lib/prisma";
-
-const MIN_PASSWORD_LENGTH = 8;
+import { validatePassword } from "@/lib/validation/password";
 
 export async function resetPasswordAction(
   formData: FormData,
@@ -34,11 +33,7 @@ export async function resetPasswordAction(
     );
   }
 
-  if (newPassword.length < MIN_PASSWORD_LENGTH) {
-    throw new Error(
-      "Password must be at least 8 characters.",
-    );
-  }
+  validatePassword(newPassword);
 
   if (newPassword !== confirmPassword) {
     throw new Error(
