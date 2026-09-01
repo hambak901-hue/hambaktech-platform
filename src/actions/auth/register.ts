@@ -6,6 +6,7 @@ import {
 } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
+import { normalizeEmail } from "@/lib/validation/user";
 
 import { prisma } from "@/lib/prisma";
 
@@ -26,11 +27,9 @@ export async function registerUserAction(
     formData.get("otherName") ?? "",
   ).trim();
 
-  const email = String(
-    formData.get("email") ?? "",
-  )
-    .trim()
-    .toLowerCase();
+  const email = normalizeEmail(
+    String(formData.get("email") ?? ""),
+  );
 
   const phone = String(
     formData.get("phone") ?? "",

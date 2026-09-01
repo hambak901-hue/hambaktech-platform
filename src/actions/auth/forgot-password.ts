@@ -1,6 +1,7 @@
 "use server";
 
 import { createHash, randomBytes } from "crypto";
+import { normalizeEmail } from "@/lib/validation/user";
 
 import { prisma } from "@/lib/prisma";
 
@@ -9,11 +10,9 @@ const RESET_TOKEN_EXPIRY_MINUTES = 30;
 export async function forgotPasswordAction(
   formData: FormData,
 ) {
-  const email = String(
-    formData.get("email") ?? "",
-  )
-    .trim()
-    .toLowerCase();
+  const email = normalizeEmail(
+    String(formData.get("email") ?? ""),
+  );
 
   if (!email) {
     throw new Error("Email address is required.");
